@@ -6,7 +6,7 @@ from google import genai
 
 load_dotenv()
 
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GEMINI_API_Key")
 
 st.title("🤖 AI Text Assistant")
 st.write("Summarize text, fix grammar, or explain concepts simply.")
