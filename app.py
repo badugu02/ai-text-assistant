@@ -2,21 +2,20 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from openai import OpenAI
+from google import genai
 
-# Load API key from .env
 load_dotenv()
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY")
 
 st.title("🤖 AI Text Assistant")
 st.write("Summarize text, fix grammar, or explain concepts simply.")
 
 if not api_key:
-    st.error("API key not found. Please check your .env file.")
+    st.error("Gemini API key not found. Check your .env file or Streamlit Secrets.")
     st.stop()
 
-client = OpenAI(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
 user_text = st.text_area("Enter your text here:")
 
@@ -25,26 +24,25 @@ task = st.selectbox(
     ["Summarize", "Fix Grammar", "Explain Simply"]
 )
 
+instructions = {
+    "Summarize": "Summarize the following text clearly and briefly.",
+    "Fix Grammar": "Correct the grammar and spelling while preserving the original meaning.",
+    "Explain Simply": "Explain the following text in simple language with an example if useful."
+}
+
 if st.button("Generate"):
     if not user_text.strip():
         st.warning("Please enter some text first.")
     else:
-        instructions = {
-            "Summarize": "Summarize the following text clearly and briefly.",
-            "Fix Grammar": "Correct the grammar and spelling while preserving the original meaning.",
-            "Explain Simply": "Explain the following text in simple language with an example if useful."
-        }
-
-        with st.spinner("AI is thinking..."):
+        with st.spinner("Gemini is thinking..."):
             try:
-                response = client.responses.create(
-                    model="gpt-4.1-mini",
-                    instructions=instructions[task],
-                    input=user_text
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=f"{instructions[task]}\n\nText:\n{user_text}"
                 )
 
                 st.subheader("AI Response")
-                st.write(response.output_text)
+                st.write(response.text)
 
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
